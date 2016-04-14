@@ -1,0 +1,12 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="android:Theme.Material.Light">
+        <!-- Customize your theme here. -->
+        <item name="android:colorPrimary">#c7643e</item>
+        <item name="android:colorPrimaryDark">#814128</item>
+        <item name="android:navigationBarColor">#c7643e</item>
+        <item name="android:windowActionBar">true</item>
+    </style>
+
+</resources>
