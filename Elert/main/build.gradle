@@ -35,3 +35,12 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.+'
 }
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'com.github.navasmdc:MaterialDesign:1.5@aar'
+    compile 'com.nineoldandroids:library:2.4.0'
+}

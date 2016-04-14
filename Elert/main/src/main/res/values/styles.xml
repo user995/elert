@@ -3,10 +3,22 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="android:Theme.Material.Light">
         <!-- Customize your theme here. -->
-        <item name="android:colorPrimary">#c7643e</item>
-        <item name="android:colorPrimaryDark">#814128</item>
-        <item name="android:navigationBarColor">#c7643e</item>
+        <item name="android:colorPrimaryDark">#d32f2f</item>
+        <item name="android:colorPrimary">#f44336</item>
+        <item name="android:navigationBarColor">#d32f2f</item>
+        <item name="android:colorAccent">#8bc34a</item>
+        <item name="android:textColorPrimary">#212121</item>
+        <item name="android:textColorSecondary">#727272</item>
         <item name="android:windowActionBar">true</item>
     </style>
 
+    <style name="ButtonTheme" parent="Widget.AppCompat.Button">
+        <item name="android:background">#8bc34a</item>
+        <item name="android:textColor">#212121</item>
+    </style>
+
+    <style name="FloatButton">
+        <item name="android:background">#8bc34a</item>
+        <item name="android:textColor">#212121</item>
+    </style>
 </resources>
