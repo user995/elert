@@ -7,5 +7,5 @@ package tk.refract.elert.main.functionControllers;
 public class Constants {
 
     public static String URL = "http://www.refract.tk/api/";
-
+    public static String DB_NAME = "elert.db";
 }

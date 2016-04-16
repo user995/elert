@@ -2,6 +2,7 @@ package tk.refract.elert.main;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Criteria;
@@ -29,7 +30,9 @@ import com.android.volley.toolbox.StringRequest;
 import com.gc.materialdesign.views.ButtonFloat;
 import org.json.JSONException;
 import org.json.JSONObject;
+import tk.refract.elert.main.Fragments.ContactFragment;
 import tk.refract.elert.main.functionControllers.Constants;
+import tk.refract.elert.main.functionControllers.LocalDatabaseController;
 import tk.refract.elert.main.functionControllers.NetworkController;
 
 import java.util.HashMap;
@@ -39,11 +42,15 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
     //Network
     public static final String TAG = NetworkController.class.getSimpleName();
     Integer counter = 0;
+    //
     private DrawerLayout drawerLayout;
     private RelativeLayout welcome;
     private SharedPreferences sharedPref;
     private Toolbar toolbar;
     private NavigationView navView;
+    private LocalDatabaseController ldbController;
+    private android.app.FragmentManager fm;
+    //runtime Constants
     private String cell;
     //Location variables
     private String Coordinates;
@@ -58,16 +65,24 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
         super.onCreate(savedInstanceState);
         //check preferences and see open main_home activity screen or 'register screen'
         setContentView(R.layout.activity_home);
+        ldbController = new LocalDatabaseController(this);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer);
         navView = (NavigationView) findViewById(R.id.navigation_view);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        fm = getFragmentManager();
+
         setSupportActionBar(toolbar);
 
         //Location Services
         StartLocationServices();
         Location = getLocation();
-        //
+
+        //Fragments
+        final ContactFragment contacts = new ContactFragment();
+        contacts.setContext(this);
+        contacts.setLocalDatabase(ldbController);
 
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -75,10 +90,8 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
                 if (menuItem.isChecked()) menuItem.setChecked(false);
                 else menuItem.setChecked(true);
 
-                //Closing drawer on item click
                 drawerLayout.closeDrawers();
 
-                //Check to see which item was being clicked and perform appropriate action
                 switch (menuItem.getItemId()) {
                     case R.id.reset:
                         SharedPreferences.Editor editor = sharedPref.edit();
@@ -86,6 +99,10 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
                         editor.remove("cell");
                         editor.commit();
                         return true;
+                    case R.id.itEmCon:
+                        changeFragment(contacts);
+                        return true;
+
                     default:
                         return false;
                 }
@@ -95,14 +112,11 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.openDrawer, R.string.closeDrawer) {
             @Override
             public void onDrawerClosed(View drawerView) {
-                // Code here will be triggered once the drawer closes as we dont want anything to happen so we leave this blank
                 super.onDrawerClosed(drawerView);
             }
 
             @Override
             public void onDrawerOpened(View drawerView) {
-                // Code here will be triggered once the drawer open as we dont want anything to happen so we leave this blank
-
                 super.onDrawerOpened(drawerView);
             }
         };
@@ -111,7 +125,6 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
         actionBarDrawerToggle.syncState();
 
         welcome = (RelativeLayout) findViewById(R.id.welcome);
-
 
         String testCell = sharedPref.getString("cell", "null");
         if (testCell.equals("null")) {
@@ -122,21 +135,19 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
             buttonFloat.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    welcomeInvisible();
                     buttonFloat.setVisibility(View.GONE);
-
 
                     EditText etName = (EditText) findViewById(R.id.etName);
                     EditText etCell = (EditText) findViewById(R.id.etCell);
                     String name = etName.getText().toString().trim();
                     cell = etCell.getText().toString().trim();
 
-                    registerLogin(cell, getLocation());
-
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString("name", name);
                     editor.putString("cell", cell);
                     editor.commit();
+
+                    registerLogin(cell, getLocation());
 
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                     toolbar.setVisibility(View.VISIBLE);
@@ -151,8 +162,18 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
             ((TextView) findViewById(R.id.tv2Name)).setText(sharedPref.getString("name", "error"));
             ((TextView) findViewById(R.id.tv2Phone)).setText(cell);
         }
+    }
 
-
+    void changeFragment(android.app.Fragment frag) {
+        FragmentTransaction fragTrans = fm.beginTransaction();
+        //ft.disallowAddToBackStack();
+        try {
+            fragTrans.replace(R.id.flFragment, frag);
+        } catch (Exception e) {
+            fragTrans.add(R.id.flFragment, frag);
+        }
+        fragTrans.addToBackStack(null);
+        fragTrans.commit();
     }
 
     void welcomeVisible() {
@@ -192,9 +213,9 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
                     Boolean error = jObj.getBoolean("error");
                     // pending = false;
                     if (!error) {
-
+                        welcomeInvisible();
                     } else {
-
+                        Toast.makeText(HomeActivity.this, "Big problems", Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -229,8 +250,6 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
             }
         };
         NetworkController.getInstance().addToRequestQueue(request, tag);
-
-
     }
 
     /**
@@ -253,7 +272,6 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
             return "null";
         }
     }
-
 
     @Override
     public void onLocationChanged(Location location) {
