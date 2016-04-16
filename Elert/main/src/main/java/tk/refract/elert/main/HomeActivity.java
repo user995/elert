@@ -4,6 +4,10 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
@@ -18,7 +22,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.gc.materialdesign.views.ButtonFloat;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements LocationListener {
     private DrawerLayout drawerLayout;
     private RelativeLayout welcome;
 
@@ -27,6 +31,15 @@ public class HomeActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private NavigationView navView;
     private String cell;
+
+    //Location variables
+    private String Coordinates;
+    private LocationManager locationManager;
+    private String provider;
+    private Location location;
+    //Stores Locaiton
+    private String Location;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +51,11 @@ public class HomeActivity extends AppCompatActivity {
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //Location Services
+        StartLocationServices();
+        Location = getLocation();
+        //
 
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -81,6 +99,7 @@ public class HomeActivity extends AppCompatActivity {
         actionBarDrawerToggle.syncState();
 
         welcome = (RelativeLayout) findViewById(R.id.welcome);
+
 
         String testCell = sharedPref.getString("cell", "null");
         if (testCell.equals("null")) {
@@ -147,4 +166,119 @@ public class HomeActivity extends AppCompatActivity {
         });
         anim.start();
     }
+
+
+//    private void registerLogin(final String cell_num) {
+//
+//        String tag = "register";
+//        StringRequest request = new StringRequest(Request.Method.POST, Constants.URL, new Response.Listener<String>() {
+//            @Override
+//            public void onResponse(String response) {
+//                try {
+//                    JSONObject jObj = new JSONObject(response);
+//                    Boolean error = jObj.getBoolean("error");
+//                    counter = 5;
+//                    // pending = false;
+//                    if (!error) {
+//                        JSONObject objUser = jObj.getJSONObject("user");
+//
+//                        User user = new User(objUser);
+//                        Constants.user = user;
+//                        Constants.loggedIn = true;
+//                        Intent intent = new Intent(LoginActivity.this, DeviceActivity.class);
+//                        intent.putExtra("user", user);
+//                        startActivity(intent);
+//
+//                        Toast.makeText(getApplicationContext(), "Welcome, " + user.getName(), Toast.LENGTH_LONG).show();
+//                        finish();
+//                    } else {
+//                        String errorMsg = jObj.getString("error_msg");
+//                        Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
+//                        btnPressed = false;
+//                    }
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//
+//            }
+//        }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                if (counter < 5)
+//                {
+//                    counter++;
+//                    Toast.makeText(getApplicationContext(), "Retrying attempt " + counter , Toast.LENGTH_LONG).show();
+//                    SignIn(email, pass);
+//                }else {
+//                    btnPressed = false;
+//                    Toast.makeText(getApplicationContext(), "Undefined network error " + error.getMessage(), Toast.LENGTH_LONG).show();
+//                    error.printStackTrace();
+//                }
+//            }
+//        }) {
+//            @Override
+//            public Map<String, String> getHeaders() throws AuthFailureError {
+//                return new HashMap<>();
+//            }
+//
+//            @Override
+//            protected Map<String, String> getParams() throws AuthFailureError {
+//                Map<String, String> params = new HashMap<>();
+//                params.put("tag", "login");
+//                params.put("email", email);
+//                params.put("password", pass);
+//                return params;
+//            }
+//        };
+//        Controller.getInstance().addToRequestQueue(request, tag);
+//
+//
+//    }
+
+    /**
+     * Location Handling Methods below
+     **/
+
+
+    public void StartLocationServices() {
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        provider = locationManager.getBestProvider(criteria, false);
+        location = locationManager.getLastKnownLocation(provider);
+    }
+
+    public String getLocation() {
+        if (location != null) {
+            onLocationChanged(location);
+            return Coordinates;
+        } else {
+            return "null";
+        }
+    }
+
+
+    @Override
+    public void onLocationChanged(Location location) {
+        String lat = Double.toString(location.getLatitude());
+        String lng = Double.toString(location.getLongitude());
+        Coordinates = lat + "," + lng;
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+
+
+
 }
