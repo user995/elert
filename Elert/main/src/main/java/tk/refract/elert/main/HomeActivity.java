@@ -20,18 +20,31 @@ import android.view.ViewAnimationUtils;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.gc.materialdesign.views.ButtonFloat;
+import org.json.JSONException;
+import org.json.JSONObject;
+import tk.refract.elert.main.functionControllers.Constants;
+import tk.refract.elert.main.functionControllers.NetworkController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class HomeActivity extends AppCompatActivity implements LocationListener {
+    //Network
+    public static final String TAG = NetworkController.class.getSimpleName();
+    Integer counter = 0;
     private DrawerLayout drawerLayout;
     private RelativeLayout welcome;
-
     private SharedPreferences sharedPref;
-
     private Toolbar toolbar;
     private NavigationView navView;
     private String cell;
-
     //Location variables
     private String Coordinates;
     private LocationManager locationManager;
@@ -39,7 +52,6 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
     private Location location;
     //Stores Locaiton
     private String Location;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,6 +131,8 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
                     String name = etName.getText().toString().trim();
                     cell = etCell.getText().toString().trim();
 
+                    registerLogin(cell, getLocation());
+
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString("name", name);
                     editor.putString("cell", cell);
@@ -140,7 +154,6 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
 
 
     }
-
 
     void welcomeVisible() {
         int cx = welcome.getRight();
@@ -167,73 +180,58 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
         anim.start();
     }
 
+    private void registerLogin(final String cell_num, final String Location) {
 
-//    private void registerLogin(final String cell_num) {
-//
-//        String tag = "register";
-//        StringRequest request = new StringRequest(Request.Method.POST, Constants.URL, new Response.Listener<String>() {
-//            @Override
-//            public void onResponse(String response) {
-//                try {
-//                    JSONObject jObj = new JSONObject(response);
-//                    Boolean error = jObj.getBoolean("error");
-//                    counter = 5;
-//                    // pending = false;
-//                    if (!error) {
-//                        JSONObject objUser = jObj.getJSONObject("user");
-//
-//                        User user = new User(objUser);
-//                        Constants.user = user;
-//                        Constants.loggedIn = true;
-//                        Intent intent = new Intent(LoginActivity.this, DeviceActivity.class);
-//                        intent.putExtra("user", user);
-//                        startActivity(intent);
-//
-//                        Toast.makeText(getApplicationContext(), "Welcome, " + user.getName(), Toast.LENGTH_LONG).show();
-//                        finish();
-//                    } else {
-//                        String errorMsg = jObj.getString("error_msg");
-//                        Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
-//                        btnPressed = false;
-//                    }
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//
-//            }
-//        }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                if (counter < 5)
-//                {
-//                    counter++;
-//                    Toast.makeText(getApplicationContext(), "Retrying attempt " + counter , Toast.LENGTH_LONG).show();
-//                    SignIn(email, pass);
-//                }else {
-//                    btnPressed = false;
-//                    Toast.makeText(getApplicationContext(), "Undefined network error " + error.getMessage(), Toast.LENGTH_LONG).show();
-//                    error.printStackTrace();
-//                }
-//            }
-//        }) {
-//            @Override
-//            public Map<String, String> getHeaders() throws AuthFailureError {
-//                return new HashMap<>();
-//            }
-//
-//            @Override
-//            protected Map<String, String> getParams() throws AuthFailureError {
-//                Map<String, String> params = new HashMap<>();
-//                params.put("tag", "login");
-//                params.put("email", email);
-//                params.put("password", pass);
-//                return params;
-//            }
-//        };
-//        Controller.getInstance().addToRequestQueue(request, tag);
-//
-//
-//    }
+        String tag = "register";
+
+        StringRequest request = new StringRequest(Request.Method.POST, Constants.URL, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    Boolean error = jObj.getBoolean("error");
+                    // pending = false;
+                    if (!error) {
+
+                    } else {
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (counter < 5) {
+                    counter++;
+                    Toast.makeText(getApplicationContext(), "Retrying attempt " + counter, Toast.LENGTH_LONG).show();
+                    registerLogin(cell_num, Location);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Undefined network error " + error.getMessage(), Toast.LENGTH_LONG).show();
+                    error.printStackTrace();
+                }
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return new HashMap<>();
+            }
+
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("tag", "register");
+                params.put("cell_num", cell_num);
+                params.put("location", Location);
+                return params;
+            }
+        };
+        NetworkController.getInstance().addToRequestQueue(request, tag);
+
+
+    }
 
     /**
      * Location Handling Methods below

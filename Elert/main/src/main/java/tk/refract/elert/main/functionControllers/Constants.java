@@ -6,6 +6,6 @@ package tk.refract.elert.main.functionControllers;
  */
 public class Constants {
 
-    public static String URL = "http://refract.tk/api/";
+    public static String URL = "http://www.refract.tk/api/";
 
 }
