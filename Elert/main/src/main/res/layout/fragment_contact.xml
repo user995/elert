@@ -24,6 +24,7 @@
             android:layout_height="66dp"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
+            android:layout_marginBottom="24dp"
             android:layout_marginRight="24dp"
             app:animate="false"
             app:iconDrawable="@drawable/ic_add_white_24dp"

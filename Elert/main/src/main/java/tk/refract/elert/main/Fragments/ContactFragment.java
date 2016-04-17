@@ -11,6 +11,7 @@ import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.gc.materialdesign.views.ButtonFloat;
@@ -20,6 +21,8 @@ import tk.refract.elert.main.functionControllers.Contact;
 import tk.refract.elert.main.functionControllers.LocalDatabaseController;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class ContactFragment extends Fragment {
 
@@ -29,6 +32,12 @@ public class ContactFragment extends Fragment {
     private ListView lvContacts;
     private TextView tvNoContacts;
     private ContactAdapter conAdapter;
+    private Comparator<Contact> contactSort = new Comparator<Contact>() {
+        @Override
+        public int compare(Contact lhs, Contact rhs) {
+            return lhs.getName().compareTo(rhs.getName());
+        }
+    };
 
     public ContactFragment() {
         // Required empty public constructor
@@ -55,7 +64,7 @@ public class ContactFragment extends Fragment {
 
         lvContacts.setAdapter(conAdapter);
 
-        //updateView();
+        updateView();
 
         ButtonFloat fltBtnAdd = (ButtonFloat) view.findViewById(R.id.fltBtnAdd);
         fltBtnAdd.setOnClickListener(new View.OnClickListener() {
@@ -63,7 +72,17 @@ public class ContactFragment extends Fragment {
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
                 startActivityForResult(intent, RQS_PICK);
+            }
+        });
 
+        lvContacts.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Contact contact = conAdapter.getItem(position);
+                conAdapter.remove(contact);
+                dbController.deleteContact(contact.getId());
+                updateView();
+                return true;
             }
         });
 
@@ -80,14 +99,16 @@ public class ContactFragment extends Fragment {
                 cursor.moveToFirst();
                 String contactId = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
                 conAdapter.add(new Contact(contactId, context));
+                conAdapter.sort(contactSort);
                 dbController.insertContact(contactId);
                 cursor.close();
+                updateView();
             }
-        updateView();
+
     }
 
     private void updateView() {
-        if (conAdapter.isEmpty()) {
+        if (conAdapter.getCount() == 0) {
             lvContacts.setVisibility(View.GONE);
             tvNoContacts.setVisibility(View.VISIBLE);
         } else {
@@ -101,6 +122,7 @@ public class ContactFragment extends Fragment {
         for (String contactID : dbController.getContacts()) {
             list.add(new Contact(contactID, context));
         }
+        Collections.sort(list, contactSort);
         return list;
     }
 }

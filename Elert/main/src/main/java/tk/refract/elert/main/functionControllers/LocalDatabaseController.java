@@ -12,13 +12,15 @@ import java.util.ArrayList;
  * Created by s212289853 on 16/04/2016.
  */
 public class LocalDatabaseController extends SQLiteOpenHelper {
+    private Context context;
     public LocalDatabaseController(Context context) {
-        super(context, Constants.DB_NAME, null, 1);
+        super(context, Constants.DB_NAME, null, 2);
+        this.context = context;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS notification(name VARCHAR, location VARCHAR(150), cell VARCHAR(10))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS notification(contact_id VARCHAR, location VARCHAR(150), date VARCHAR)");
         db.execSQL("CREATE TABLE IF NOT EXISTS contact(contact_id VARCHAR)");
     }
 
@@ -29,29 +31,37 @@ public class LocalDatabaseController extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    public void scrubDB() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS notification");
+        db.execSQL("DROP TABLE IF EXISTS contact");
+        onCreate(db);
+    }
+
     public boolean insertNotification(Notification notification) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put("name", notification.getName());
+        contentValues.put("contact_id", notification.getContact_id());
         contentValues.put("location", notification.getLocation());
-        contentValues.put("cell", notification.getCell());
+        contentValues.put("date", notification.getDateString());
         db.insert("notification", null, contentValues);
         return true;
     }
 
-    public ArrayList<Notification> getLatestNotifcations() {
+    public ArrayList<Notification> getLatestNotifications() {
         ArrayList<Notification> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = db.rawQuery("SELECT * FROM notification", null);
-
+        res.moveToFirst();
         while (!res.isAfterLast()) {
-            Notification notification = new Notification(res.getString(res.getColumnIndex("name")), res.getString(res.getColumnIndex("location")), res.getString(res.getColumnIndex("cell")));
+            Notification notification = new Notification(res.getString(res.getColumnIndex("contact_id")), res.getString(res.getColumnIndex("location")), res.getString(res.getColumnIndex("date")), context);
             list.add(notification);
             res.moveToNext();
         }
 
+        int to = list.size() - 3 > 0 ? list.size() - 3 : 0;
         ArrayList<Notification> listV2 = new ArrayList<>();
-        for (int i = list.size(); i > list.size() - 3; i--) {
+        for (int i = list.size() - 1; i > to; i--) {
             listV2.add(list.get(i));
         }
 
@@ -77,6 +87,7 @@ public class LocalDatabaseController extends SQLiteOpenHelper {
         ArrayList<String> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = db.rawQuery("SELECT * FROM contact", null);
+        res.moveToFirst();
         while (!res.isAfterLast()) {
             list.add(res.getString(res.getColumnIndex("contact_id")));
             res.moveToNext();

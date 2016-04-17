@@ -13,9 +13,9 @@
                 android:id="@+id/toolbar"
                 layout="@layout/tool_bar"
                 android:visibility="gone"/>
-        <fragment android:name="tk.refract.elert.main.Fragments.HomeFragment"
+        <FrameLayout
                   android:layout_width="fill_parent" android:layout_height="fill_parent" android:id="@+id/flFragment">
-        </fragment>
+        </FrameLayout>
     </LinearLayout>
     <RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent">
 

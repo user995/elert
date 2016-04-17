@@ -3,7 +3,10 @@ package tk.refract.elert.main;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.FragmentTransaction;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Criteria;
 import android.location.Location;
@@ -31,9 +34,12 @@ import com.gc.materialdesign.views.ButtonFloat;
 import org.json.JSONException;
 import org.json.JSONObject;
 import tk.refract.elert.main.Fragments.ContactFragment;
+import tk.refract.elert.main.Fragments.HomeFragment;
+import tk.refract.elert.main.SpecialActivities.AlertNearby;
 import tk.refract.elert.main.functionControllers.Constants;
 import tk.refract.elert.main.functionControllers.LocalDatabaseController;
 import tk.refract.elert.main.functionControllers.NetworkController;
+import tk.refract.elert.main.functionControllers.Notification;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +48,7 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
     //Network
     public static final String TAG = NetworkController.class.getSimpleName();
     Integer counter = 0;
+    NotificationManager notificationManager;
     //
     private DrawerLayout drawerLayout;
     private RelativeLayout welcome;
@@ -79,10 +86,34 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
         StartLocationServices();
         Location = getLocation();
 
+        //Notification Center
+        Intent homeIntent = new Intent(this, HomeActivity.class);
+        Intent nearbyIntent = new Intent(this, AlertNearby.class);
+        nearbyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent homePendingIntent = PendingIntent.getActivity(this, 1, homeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent nearbyPendingIntent = PendingIntent.getActivity(this, 1, nearbyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        android.app.Notification.Builder builder = new android.app.Notification.Builder(getApplicationContext());
+        builder.setContentTitle("Elert");
+        builder.setContentText("Standby mode");
+        builder.setContentIntent(homePendingIntent);
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+        builder.setOngoing(true);
+        builder.setPriority(android.app.Notification.PRIORITY_DEFAULT);
+        builder.addAction(R.drawable.ic_warning_black_24dp, "Nearby Alert", nearbyPendingIntent);
+        builder.setVisibility(1);
+        android.app.Notification notification = builder.build();
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(1, notification);
+
         //Fragments
         final ContactFragment contacts = new ContactFragment();
         contacts.setContext(this);
         contacts.setLocalDatabase(ldbController);
+        final HomeFragment home = new HomeFragment();
+        home.setContext(this);
+        home.setLocalDatabase(ldbController);
+
+        changeFragment(home);
 
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -98,11 +129,16 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
                         editor.remove("name");
                         editor.remove("cell");
                         editor.commit();
+                        ldbController.scrubDB();
                         return true;
+                    case R.id.dummy:
+                        ldbController.insertNotification(new Notification("515", "-34.00878873,25.66941587", "2016-04-16 18:04:06", HomeActivity.this));
                     case R.id.itEmCon:
                         changeFragment(contacts);
                         return true;
-
+                    case R.id.itHome:
+                        changeFragment(home);
+                        return true;
                     default:
                         return false;
                 }
@@ -172,6 +208,7 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
         } catch (Exception e) {
             fragTrans.add(R.id.flFragment, frag);
         }
+        fragTrans.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         fragTrans.addToBackStack(null);
         fragTrans.commit();
     }
