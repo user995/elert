@@ -249,6 +249,8 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
                     Uri selectedImage = imageReturnedIntent.getData();
                     try {
                         if (changeSwitch == 1)
+                            // TODO: 2016-04-17 save picture persistently 
+                            // TODO: 2016-04-17 crop and rotate pictures if need be 
                             profilePicture.setImageBitmap(decodeUri(selectedImage));
                         else {
                             Drawable dr = new BitmapDrawable(decodeUri(selectedImage));

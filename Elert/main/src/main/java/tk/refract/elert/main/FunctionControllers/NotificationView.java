@@ -68,8 +68,9 @@ public class NotificationView extends RemoteViews {
         intentOpen.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntentOpen = PendingIntent.getActivity(mContext, Constants.REQUEST_CODE, intentOpen, 0);
         setOnClickPendingIntent(R.id.SmlNotiAlertLayout, pendingIntentOpen);
-        //open map
-        //open phone
+
+        // TODO: 2016-04-17 open map to location and open phone on btnPhone press
+
     }
 
 }
