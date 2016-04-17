@@ -14,7 +14,9 @@ public class AlertNearby extends Activity {
         //identify closest contacts
 
 
+
         finish();
     }
+
 
 }

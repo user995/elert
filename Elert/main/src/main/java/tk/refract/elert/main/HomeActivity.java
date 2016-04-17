@@ -50,6 +50,8 @@ import tk.refract.elert.main.functionControllers.Notification;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class HomeActivity extends AppCompatActivity implements LocationListener {
     //Network
@@ -248,6 +250,8 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
                 startActivityForResult(photoPickerIntent, 1);
             }
         });
+
+
     }
 
     //Image Handling
@@ -314,6 +318,10 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
         anim.start();
     }
 
+    /**
+     * Register and Sign Method
+     **/
+
     private void registerLogin(final String cell_num, final String Location) {
 
         String tag = "register";
@@ -363,6 +371,77 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
             }
         };
         NetworkController.getInstance().addToRequestQueue(request, tag);
+
+        //Constant location updates
+        updateLocation();
+    }
+
+
+    /**
+     *
+     * Update Location at interval
+     *
+     * **/
+
+    private void updateLocation() {
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+
+                String tag = "location";
+
+                StringRequest request = new StringRequest(Request.Method.POST, Constants.URL, new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jObj = new JSONObject(response);
+                            Boolean error = jObj.getBoolean("error");
+                            // pending = false;
+                            if (!error) {
+                                Toast.makeText(HomeActivity.this, "Location Updated", Toast.LENGTH_LONG);
+                            } else {
+                                Toast.makeText(HomeActivity.this, "Big problems", Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        if (counter < 5) {
+                            counter++;
+                            Toast.makeText(getApplicationContext(), "Retrying attempt " + counter, Toast.LENGTH_LONG).show();
+                            run();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Undefined network error " + error.getMessage(), Toast.LENGTH_LONG).show();
+                            error.printStackTrace();
+                        }
+                    }
+                }) {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        return new HashMap<>();
+                    }
+
+                    @Override
+                    protected Map<String, String> getParams() throws AuthFailureError {
+                        Map<String, String> params = new HashMap<>();
+                        params.put("tag", "location");
+                        params.put("cell_num", cell);
+                        params.put("location", getLocation());
+                        return params;
+
+                    }
+                };
+                NetworkController.getInstance().addToRequestQueue(request, tag);
+
+
+            }
+        };
+        timer.schedule(task, 0, 60000);
     }
 
     /**
@@ -411,6 +490,7 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
     /**
      * Reduce Image Sizes
      **/
+
     private Bitmap decodeUri(Uri selectedImage) throws FileNotFoundException {
 
         // Decode image size
