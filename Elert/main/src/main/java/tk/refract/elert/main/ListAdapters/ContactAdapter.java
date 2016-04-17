@@ -28,6 +28,7 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
             view = inflater.inflate(R.layout.layout_contact, parent, false);
         }
         CircleImageView imgCon = (CircleImageView) view.findViewById(R.id.imgConImage);
+        imgCon.setImageBitmap(getItem(position).getContactImage());
 
         TextView tvConName = (TextView) view.findViewById(R.id.tvConName);
         tvConName.setText(getItem(position).getName());

@@ -190,18 +190,29 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
                     EditText etCell = (EditText) findViewById(R.id.etCell);
                     String name = etName.getText().toString().trim();
                     cell = etCell.getText().toString().trim();
+                    if (cell.equals("") && name.equals("")) {
+                        etCell.setError("Cellphone number required");
+                        etName.setError("Name is required");
+                    } else if (name.equals("")) {
+                        etName.setError("Name is required");
+                    } else if (cell.equals("")) {
+                        etCell.setError("Cellphone number required");
+                    } else {
 
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString("name", name);
-                    editor.putString("cell", cell);
-                    editor.commit();
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putString("name", name);
+                        editor.putString("cell", cell);
+                        editor.commit();
 
-                    registerLogin(cell, getLocation());
+                        registerLogin(cell, getLocation());
 
-                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                    toolbar.setVisibility(View.VISIBLE);
-                    ((TextView) findViewById(R.id.tv2Name)).setText(name);
-                    ((TextView) findViewById(R.id.tv2Phone)).setText(cell);
+                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                        toolbar.setVisibility(View.VISIBLE);
+                        ((TextView) findViewById(R.id.tv2Name)).setText(name);
+                        ((TextView) findViewById(R.id.tv2Phone)).setText(cell);
+                    }
+
+
                 }
             });
         } else {
@@ -213,6 +224,7 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
 
         }
 
+        //Image Handling
         profilePicture = (CircleImageView) findViewById(R.id.profile_image);
         profilePicture.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -225,7 +237,7 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
 
             }
         });
-
+        //Image Handling
         headerBackground = (RelativeLayout) findViewById(R.id.headerback);
         headerBackground.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -238,6 +250,7 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
         });
     }
 
+    //Image Handling
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
