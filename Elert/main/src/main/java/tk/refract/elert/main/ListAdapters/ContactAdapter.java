@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import de.hdodenhof.circleimageview.CircleImageView;
+import tk.refract.elert.main.FunctionControllers.Contact;
 import tk.refract.elert.main.R;
-import tk.refract.elert.main.functionControllers.Contact;
 
 import java.util.List;
 

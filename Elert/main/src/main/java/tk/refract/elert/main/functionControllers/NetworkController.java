@@ -1,4 +1,4 @@
-package tk.refract.elert.main.functionControllers;
+package tk.refract.elert.main.FunctionControllers;
 
 /**
  * Created by s212254782 on 2016/04/16.

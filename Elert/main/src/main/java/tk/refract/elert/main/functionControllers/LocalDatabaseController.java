@@ -1,4 +1,4 @@
-package tk.refract.elert.main.functionControllers;
+package tk.refract.elert.main.FunctionControllers;
 
 import android.content.ContentValues;
 import android.content.Context;

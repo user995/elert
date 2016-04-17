@@ -15,10 +15,10 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.gc.materialdesign.views.ButtonFloat;
+import tk.refract.elert.main.FunctionControllers.Contact;
+import tk.refract.elert.main.FunctionControllers.LocalDatabaseController;
 import tk.refract.elert.main.ListAdapters.ContactAdapter;
 import tk.refract.elert.main.R;
-import tk.refract.elert.main.functionControllers.Contact;
-import tk.refract.elert.main.functionControllers.LocalDatabaseController;
 
 import java.util.ArrayList;
 import java.util.Collections;

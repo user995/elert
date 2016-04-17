@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.FragmentTransaction;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -41,11 +40,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import tk.refract.elert.main.Fragments.ContactFragment;
 import tk.refract.elert.main.Fragments.HomeFragment;
-import tk.refract.elert.main.SpecialActivities.AlertNearby;
-import tk.refract.elert.main.functionControllers.Constants;
-import tk.refract.elert.main.functionControllers.LocalDatabaseController;
-import tk.refract.elert.main.functionControllers.NetworkController;
-import tk.refract.elert.main.functionControllers.Notification;
+import tk.refract.elert.main.FunctionControllers.Constants;
+import tk.refract.elert.main.FunctionControllers.LocalDatabaseController;
+import tk.refract.elert.main.FunctionControllers.NetworkController;
+import tk.refract.elert.main.FunctionControllers.Notification;
+import tk.refract.elert.main.Services.AlertNotificationService;
 
 import java.io.FileNotFoundException;
 import java.util.HashMap;
@@ -101,23 +100,6 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
         Location = getLocation();
 
         //Notification Center
-        Intent homeIntent = new Intent(this, HomeActivity.class);
-        Intent nearbyIntent = new Intent(this, AlertNearby.class);
-        nearbyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent homePendingIntent = PendingIntent.getActivity(this, 1, homeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent nearbyPendingIntent = PendingIntent.getActivity(this, 1, nearbyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        android.app.Notification.Builder builder = new android.app.Notification.Builder(getApplicationContext());
-        builder.setContentTitle("Elert");
-        builder.setContentText("Standby mode");
-        builder.setContentIntent(homePendingIntent);
-        builder.setSmallIcon(R.mipmap.ic_launcher);
-        builder.setOngoing(true);
-        builder.setPriority(android.app.Notification.PRIORITY_DEFAULT);
-        builder.addAction(R.drawable.ic_warning_black_24dp, "Nearby Alert", nearbyPendingIntent);
-        builder.setVisibility(1);
-        android.app.Notification notification = builder.build();
-        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(1, notification);
 
         //Fragments
         final ContactFragment contacts = new ContactFragment();
@@ -128,7 +110,6 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
         home.setLocalDatabase(ldbController);
 
         changeFragment(home);
-
 
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -212,9 +193,8 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
                         toolbar.setVisibility(View.VISIBLE);
                         ((TextView) findViewById(R.id.tv2Name)).setText(name);
                         ((TextView) findViewById(R.id.tv2Phone)).setText(cell);
+                        startService();
                     }
-
-
                 }
             });
         } else {
@@ -223,7 +203,7 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
             toolbar.setVisibility(View.VISIBLE);
             ((TextView) findViewById(R.id.tv2Name)).setText(sharedPref.getString("name", "error"));
             ((TextView) findViewById(R.id.tv2Phone)).setText(cell);
-
+            startService();
         }
 
         //Image Handling
@@ -250,8 +230,12 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
                 startActivityForResult(photoPickerIntent, 1);
             }
         });
+    }
 
-
+    public void startService() {
+        Intent serviceIntent = new Intent(HomeActivity.this, AlertNotificationService.class);
+        serviceIntent.setAction(Constants.ACTION_NORMAL);
+        startService(serviceIntent);
     }
 
     //Image Handling

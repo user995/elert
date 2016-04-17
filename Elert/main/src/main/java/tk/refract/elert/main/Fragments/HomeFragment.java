@@ -11,10 +11,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import tk.refract.elert.main.FunctionControllers.LocalDatabaseController;
+import tk.refract.elert.main.FunctionControllers.Notification;
 import tk.refract.elert.main.ListAdapters.NotificationAdapter;
 import tk.refract.elert.main.R;
-import tk.refract.elert.main.functionControllers.LocalDatabaseController;
-import tk.refract.elert.main.functionControllers.Notification;
 
 import java.util.ArrayList;
 

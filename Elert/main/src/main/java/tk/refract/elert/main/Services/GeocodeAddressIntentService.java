@@ -7,7 +7,7 @@ import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.util.Log;
-import tk.refract.elert.main.functionControllers.Constants;
+import tk.refract.elert.main.FunctionControllers.Constants;
 
 import java.io.IOException;
 import java.util.List;

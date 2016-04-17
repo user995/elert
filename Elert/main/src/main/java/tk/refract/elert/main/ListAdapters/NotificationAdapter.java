@@ -10,11 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import tk.refract.elert.main.FunctionControllers.Constants;
+import tk.refract.elert.main.FunctionControllers.Notification;
 import tk.refract.elert.main.HomeActivity;
 import tk.refract.elert.main.R;
 import tk.refract.elert.main.Services.GeocodeAddressIntentService;
-import tk.refract.elert.main.functionControllers.Constants;
-import tk.refract.elert.main.functionControllers.Notification;
 
 import java.util.List;
 
