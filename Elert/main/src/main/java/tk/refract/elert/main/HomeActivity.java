@@ -8,10 +8,15 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
@@ -31,6 +36,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.gc.materialdesign.views.ButtonFloat;
+import de.hdodenhof.circleimageview.CircleImageView;
 import org.json.JSONException;
 import org.json.JSONObject;
 import tk.refract.elert.main.Fragments.ContactFragment;
@@ -41,6 +47,7 @@ import tk.refract.elert.main.functionControllers.LocalDatabaseController;
 import tk.refract.elert.main.functionControllers.NetworkController;
 import tk.refract.elert.main.functionControllers.Notification;
 
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,6 +73,11 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
     private Location location;
     //Stores Locaiton
     private String Location;
+
+    //Image handling
+    private int changeSwitch;
+    private CircleImageView profilePicture;
+    private RelativeLayout headerBackground;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +126,7 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
         home.setLocalDatabase(ldbController);
 
         changeFragment(home);
+
 
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -197,8 +210,58 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
             toolbar.setVisibility(View.VISIBLE);
             ((TextView) findViewById(R.id.tv2Name)).setText(sharedPref.getString("name", "error"));
             ((TextView) findViewById(R.id.tv2Phone)).setText(cell);
+
+        }
+
+        profilePicture = (CircleImageView) findViewById(R.id.profile_image);
+        profilePicture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeSwitch = 1;
+                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                photoPickerIntent.setType("image/*");
+                startActivityForResult(photoPickerIntent, 1);
+
+
+            }
+        });
+
+        headerBackground = (RelativeLayout) findViewById(R.id.headerback);
+        headerBackground.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeSwitch = 2;
+                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                photoPickerIntent.setType("image/*");
+                startActivityForResult(photoPickerIntent, 1);
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
+        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
+
+        switch (requestCode) {
+            case 1:
+                if (resultCode == RESULT_OK) {
+                    Uri selectedImage = imageReturnedIntent.getData();
+                    try {
+                        if (changeSwitch == 1)
+                            profilePicture.setImageBitmap(decodeUri(selectedImage));
+                        else {
+                            Drawable dr = new BitmapDrawable(decodeUri(selectedImage));
+                            headerBackground.setBackground(dr);
+                        }
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                }
         }
     }
+
+
 
     void changeFragment(android.app.Fragment frag) {
         FragmentTransaction fragTrans = fm.beginTransaction();
@@ -329,6 +392,39 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
 
     @Override
     public void onProviderDisabled(String provider) {
+
+    }
+
+    /**
+     * Reduce Image Sizes
+     **/
+    private Bitmap decodeUri(Uri selectedImage) throws FileNotFoundException {
+
+        // Decode image size
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(getContentResolver().openInputStream(selectedImage), null, o);
+
+        // The new size we want to scale to
+        final int REQUIRED_SIZE = 140;
+
+        // Find the correct scale value. It should be the power of 2.
+        int width_tmp = o.outWidth, height_tmp = o.outHeight;
+        int scale = 1;
+        while (true) {
+            if (width_tmp / 2 < REQUIRED_SIZE
+                    || height_tmp / 2 < REQUIRED_SIZE) {
+                break;
+            }
+            width_tmp /= 2;
+            height_tmp /= 2;
+            scale *= 2;
+        }
+
+        // Decode with inSampleSize
+        BitmapFactory.Options o2 = new BitmapFactory.Options();
+        o2.inSampleSize = scale;
+        return BitmapFactory.decodeStream(getContentResolver().openInputStream(selectedImage), null, o2);
 
     }
 

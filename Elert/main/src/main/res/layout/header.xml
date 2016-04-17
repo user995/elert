@@ -3,6 +3,7 @@
                 android:layout_width="300dp"
                 android:layout_height="190dp"
                 android:background="@drawable/header_background"
+                android:id="@+id/headerback"
 
 >
     <de.hdodenhof.circleimageview.CircleImageView
