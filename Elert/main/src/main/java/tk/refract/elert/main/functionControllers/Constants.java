@@ -20,4 +20,6 @@ public class Constants {
     public static final int REQUEST_CODE = 9319;
     public static String URL = "http://www.refract.tk/api/";
     public static String DB_NAME = "elert.db";
+
+    public static LocalDatabaseController ldb;
 }

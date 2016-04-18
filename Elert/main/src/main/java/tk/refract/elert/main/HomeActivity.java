@@ -63,7 +63,6 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
     private SharedPreferences sharedPref;
     private Toolbar toolbar;
     private NavigationView navView;
-    private LocalDatabaseController ldbController;
     private android.app.FragmentManager fm;
     //runtime Constants
     private String cell;
@@ -83,9 +82,9 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //check preferences and see open main_home activity screen or 'register screen'
+
         setContentView(R.layout.activity_home);
-        ldbController = new LocalDatabaseController(this);
+        Constants.ldb = new LocalDatabaseController(this);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer);
         navView = (NavigationView) findViewById(R.id.navigation_view);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
@@ -104,10 +103,10 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
         //Fragments
         final ContactFragment contacts = new ContactFragment();
         contacts.setContext(this);
-        contacts.setLocalDatabase(ldbController);
+        contacts.setLocalDatabase(Constants.ldb);
         final HomeFragment home = new HomeFragment();
         home.setContext(this);
-        home.setLocalDatabase(ldbController);
+        home.setLocalDatabase(Constants.ldb);
 
         changeFragment(home);
 
@@ -125,15 +124,17 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
                         editor.remove("name");
                         editor.remove("cell");
                         editor.commit();
-                        ldbController.scrubDB();
+                        Constants.ldb.scrubDB();
                         return true;
                     case R.id.dummy:
-                        ldbController.insertNotification(new Notification("515", "-34.00878873,25.66941587", "2016-04-16 18:04:06", HomeActivity.this));
+                        Constants.ldb.insertNotification(new Notification("854", "-33.93997528,25.52960109", "2016-04-17 20:43:46", HomeActivity.this));
+                        return true;
                     case R.id.itEmCon:
                         changeFragment(contacts);
                         return true;
                     case R.id.itHome:
                         changeFragment(home);
+                        Constants.ldb.getLatestNotifications();
                         return true;
                     default:
                         return false;
@@ -369,6 +370,7 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
      *
      * **/
 
+    // TODO: 2016-04-17 make updateLocation in service 
     private void updateLocation() {
         Timer timer = new Timer();
         TimerTask task = new TimerTask() {
@@ -399,7 +401,7 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
                     public void onErrorResponse(VolleyError error) {
                         if (counter < 5) {
                             counter++;
-                            Toast.makeText(getApplicationContext(), "Retrying attempt " + counter, Toast.LENGTH_LONG).show();
+                            //Toast.makeText(getApplicationContext(), "Retrying attempt " + counter, Toast.LENGTH_LONG).show();
                             run();
                         } else {
                             Toast.makeText(getApplicationContext(), "Undefined network error " + error.getMessage(), Toast.LENGTH_LONG).show();

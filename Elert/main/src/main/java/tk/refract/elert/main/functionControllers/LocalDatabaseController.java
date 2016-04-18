@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -51,17 +52,23 @@ public class LocalDatabaseController extends SQLiteOpenHelper {
     public ArrayList<Notification> getLatestNotifications() {
         ArrayList<Notification> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("SELECT * FROM notification", null);
+        Cursor res = db.rawQuery("SELECT * FROM notification;", null);
         res.moveToFirst();
         while (!res.isAfterLast()) {
             Notification notification = new Notification(res.getString(res.getColumnIndex("contact_id")), res.getString(res.getColumnIndex("location")), res.getString(res.getColumnIndex("date")), context);
+            Log.d("Attempt",notification.toString());
             list.add(notification);
             res.moveToNext();
         }
+        res.close();
+
+        Log.d("Notification List ("+list.size()+")", list.toString());
 
         int to = list.size() - 3 > 0 ? list.size() - 3 : 0;
+
+        Log.d("To","TO:" + to);
         ArrayList<Notification> listV2 = new ArrayList<>();
-        for (int i = list.size() - 1; i > to; i--) {
+        for (int i = list.size() -1; i >= to; i--) {
             listV2.add(list.get(i));
         }
 
@@ -92,6 +99,7 @@ public class LocalDatabaseController extends SQLiteOpenHelper {
             list.add(res.getString(res.getColumnIndex("contact_id")));
             res.moveToNext();
         }
+        res.close();
         return list;
     }
 }
