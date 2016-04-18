@@ -1,0 +1,24 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools" xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="${relativePackage}.${activityClass}">
+
+    <ListView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/lvLocations"
+            android:layout_alignParentTop="true" android:layout_alignParentStart="true"
+            android:choiceMode="singleChoice"/>
+    <com.gc.materialdesign.views.ButtonFloat
+            android:id="@+id/fltBtnAdd"
+            android:layout_width="66dp"
+            android:layout_height="66dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="24dp"
+            android:layout_marginRight="24dp"
+            app:animate="false"
+            app:iconDrawable="@drawable/ic_add_white_24dp"
+            android:background="#ff4bc34a"/>
+</RelativeLayout>
